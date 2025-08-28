@@ -1,0 +1,2 @@
+export const LASTFM_API_KEY = "2a8b2ac6dca2105fe04b1cd63c520b96";
+export const LASTFM_SHARED_SECRET = "d98cd4d4c01c361e30c934637b23102e";
