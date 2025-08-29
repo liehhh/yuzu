@@ -49,6 +49,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -124,6 +125,7 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media"
@@ -136,5 +138,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #EXTRAS
 
 
-CORS_ALLOWED_ORIGINS = ["https://liehhh.pythonanywhere.com"]
-CSRF_TRUSTED_ORIGINS = ["https://liehhh.pythonanywhere.com"]
+# CORS_ALLOWED_ORIGINS = ["https://liehhh.pythonanywhere.com"]
+# CSRF_TRUSTED_ORIGINS = ["https://liehhh.pythonanywhere.com"]
+
+RENDER_EXTERNAL_HOSTNAME = os.getenv("RENDER_EXTERNAL_HOSTNAME")
+if RENDER_EXTERNAL_HOSTNAME:
+    CSRF_TRUSTED_ORIGINS = [f"https://{RENDER_EXTERNAL_HOSTNAME}"]
