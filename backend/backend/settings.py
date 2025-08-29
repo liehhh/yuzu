@@ -141,6 +141,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # CORS_ALLOWED_ORIGINS = ["https://liehhh.pythonanywhere.com"]
 # CSRF_TRUSTED_ORIGINS = ["https://liehhh.pythonanywhere.com"]
 
+CORS_ALLOW_ALL_ORIGINS = True
+
 RENDER_EXTERNAL_HOSTNAME = os.getenv("RENDER_EXTERNAL_HOSTNAME")
 if RENDER_EXTERNAL_HOSTNAME:
     CSRF_TRUSTED_ORIGINS = [f"https://{RENDER_EXTERNAL_HOSTNAME}"]
