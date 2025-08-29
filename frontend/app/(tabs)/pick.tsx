@@ -10,12 +10,13 @@ import {
   ScrollView,
   ImageBackground,
 } from "react-native";
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import AeroBackground from "../../components/AeroBackground";
+import { useFocusEffect } from "expo-router";
 import Glass from "../../components/Glass";
-import { get } from "../../lib/http";
 import WaterDropsBackground from "../../components/WaterDropsBackground";
 import { BlurView } from "expo-blur";
+import { get, put } from "../../lib/http";
 
 type Track = {
   id: string;
@@ -24,6 +25,8 @@ type Track = {
   album?: string;
   image?: string;
   preview_url?: string;
+  url?: string;
+  uri?: string;
 };
 
 type Mode = "summary" | "picker";
@@ -50,6 +53,30 @@ export default function Picks() {
       setLoading(false);
     }
   }
+
+  async function savePicks(tracks: Track[]) {
+    await put<{ week_start: string; tracks: Track[] }>("/picks/current/", {
+      tracks,
+    });
+  }
+
+  useFocusEffect(
+    useCallback(() => {
+      let alive = true;
+      (async () => {
+        try {
+          const data = await get<{ week_start: string; tracks: Track[] }>(
+            "/picks/current/"
+          );
+          if (!alive) return;
+          setSelected(data.tracks || []);
+        } catch (e) {}
+      })();
+      return () => {
+        alive = false;
+      };
+    }, [])
+  );
 
   function togglePick(t: Track) {
     const exists = selected.some((s) => s.id === t.id);

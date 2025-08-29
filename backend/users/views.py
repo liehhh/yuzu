@@ -1,10 +1,14 @@
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
 from django.views.decorators.csrf import csrf_exempt
 from .models import UserProfile
-from .serializers import UserProfileSerializer
+from .serializers import UserProfileSerializer, WeeklyPickSerializer
 from .spotify import search_tracks
+from .utils import get_week_start
+from django.utils import timezone
+from .models import WeeklyPick
 
 @api_view(["GET"])
 def ping(request):
@@ -34,3 +38,22 @@ def spotify_search(request):
         return Response({"results": results})
     except Exception as e:
         return Response({"detail": str(e)}, status=status.HTTP_502_BAD_GATEWAY)
+    
+@api_view(["GET", "PUT"])
+@permission_classes([IsAuthenticated])   
+def current_week_picks(request):
+    week_start = get_week_start()
+    obj, _created = WeeklyPick.objects.get_or_create(
+        user=request.user,
+        week_start=week_start,
+        defaults={"tracks": []},
+    )
+    if request.method == "GET":
+        ser = WeeklyPickSerializer(obj)
+        return Response(ser.data, status=status.HTTP_200_OK)
+    
+    payload = {"tracks": request.data.get("tracks", [])}
+    ser = WeeklyPickSerializer(instance=obj, data=payload, context={"request": request})
+    ser.is_valid(raise_exception=True)
+    ser.save()
+    return Response(ser.data, status=status.HTTP_200_OK)

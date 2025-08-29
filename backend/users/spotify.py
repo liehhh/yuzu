@@ -55,5 +55,7 @@ def search_tracks(q: str, limit: int = 15, market: str = "US"):
             "album": album.get("name"),
             "image": img,
             "preview_url": t.get("preview_url"),
+            "url": t.get("external_urls", {}).get("spotify"),
+            "uri": t.get("uri"),
         })
     return results
