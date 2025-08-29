@@ -1,4 +1,4 @@
-export const API_URL = "https://yuzu-78ku.onrender.com";
+export const API_URL = "https://yuzu-78ku.onrender.com/api";
 
 export async function post<T = any>(path: string, body: any){
     const res = await fetch(`${API_URL}${path}`, {

@@ -4,6 +4,7 @@ from rest_framework import status
 from django.views.decorators.csrf import csrf_exempt
 from .models import UserProfile
 from .serializers import UserProfileSerializer
+from .spotify import search_tracks
 
 @api_view(["GET"])
 def ping(request):
@@ -22,3 +23,14 @@ def lastfm_connect(request):
         defaults={"display_name": display_name, "avatar_url": avatar_url},
     )
     return Response(UserProfileSerializer(profile).data, status=status.HTTP_200_OK)
+
+@api_view(["GET"])
+def spotify_search(request):
+    q = (request.query_params.get("q") or "").strip()
+    if not q:
+        return Response({"results": []})
+    try:
+        results = search_tracks(q, limit=15, market="US")
+        return Response({"results": results})
+    except Exception as e:
+        return Response({"detail": str(e)}, status=status.HTTP_502_BAD_GATEWAY)
