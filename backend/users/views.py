@@ -40,7 +40,6 @@ def spotify_search(request):
         return Response({"detail": str(e)}, status=status.HTTP_502_BAD_GATEWAY)
     
 @api_view(["GET", "PUT"])
-@permission_classes([IsAuthenticated])   
 def current_week_picks(request):
     week_start = get_week_start()
     obj, _created = WeeklyPick.objects.get_or_create(

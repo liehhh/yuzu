@@ -89,9 +89,16 @@ export default function Picks() {
     }
   }
 
-  // remove by id (no math/indexes)
-  function removeById(id: string) {
-    setSelected((prev) => prev.filter((t) => t.id !== id));
+  async function removeById(id: string) {
+    const prev = selected;
+    const next = prev.filter((t) => t.id !== id);
+    setSelected(next); // optimistic UI
+    try {
+      await savePicks(next);
+    } catch (e: any) {
+      setSelected(prev); // revert on error
+      Alert.alert("Remove failed", e?.message ?? String(e));
+    }
   }
 
   // 3 placeholders when no picks yet
@@ -183,7 +190,15 @@ export default function Picks() {
             Pick your tracks
           </Text>
           <Pressable
-            onPress={() => setMode("summary")}
+            onPress={async () => {
+              try {
+                await savePicks(selected);
+              } catch (e) {
+                Alert.alert("Save failed", String(e));
+                return;
+              }
+              setMode("summary");
+            }}
             className="mt-2 rounded-2xl bg-white/80 border border-white/70 py-3 items-center"
           >
             <Text className="font-medium text-neutral-900">Done</Text>
@@ -282,11 +297,7 @@ export default function Picks() {
                 </Glass>
               );
             }}
-            ListEmptyComponent={
-              !loading && q.trim() ? (
-                <Text className="text-neutral-500 mt-3">No results.</Text>
-              ) : null
-            }
+            ListEmptyComponent={!loading && q.trim() ? <Text>...</Text> : null}
           />
 
           {/* Done button always visible at bottom of picker */}
