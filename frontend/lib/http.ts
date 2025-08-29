@@ -16,10 +16,8 @@ async function request<T>(
     "Content-Type": "application/json",
   };
 
-  // ✅ Send your saved token on every request
+  // DRF TokenAuthentication header
   if (session?.authToken) {
-    // If your backend expects a custom header, change this line to:
-    // headers["X-Auth-Token"] = session.authToken;
     headers["Authorization"] = `Token ${session.authToken}`;
   }
 
@@ -31,7 +29,6 @@ async function request<T>(
   });
 
   if (!res.ok) {
-    // try to surface backend message
     const text = await res.text();
     throw new Error(text || `${res.status} ${res.statusText}`);
   }
@@ -40,6 +37,10 @@ async function request<T>(
 
 export function get<T = any>(path: string, params?: Record<string, string>) {
   return request<T>("GET", path, undefined, params);
+}
+
+export function post<T = any>(path: string, body: any) {
+  return request<T>("POST", path, body);
 }
 
 export function put<T = any>(path: string, body: any) {
