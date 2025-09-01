@@ -160,6 +160,13 @@ SPOTIFY_CLIENT_SECRET = os.getenv("SPOTIFY_CLIENT_SECRET")
 
 CORS_ALLOW_ALL_ORIGINS = True
 
-RENDER_EXTERNAL_HOSTNAME = os.getenv("RENDER_EXTERNAL_HOSTNAME")
-if RENDER_EXTERNAL_HOSTNAME:
-    CSRF_TRUSTED_ORIGINS = [f"https://{RENDER_EXTERNAL_HOSTNAME}"]
+RENDER_HOST = os.getenv("RENDER_EXTERNAL_HOSTNAME")  # Render sets this
+ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+if RENDER_HOST:
+    ALLOWED_HOSTS.append(RENDER_HOST)
+
+CSRF_TRUSTED_ORIGINS = [
+    f"https://{RENDER_HOST}" if RENDER_HOST else "",
+    # add your custom domain if you have one
+]
+CSRF_TRUSTED_ORIGINS = [o for o in CSRF_TRUSTED_ORIGINS if o]  # drop blanks
