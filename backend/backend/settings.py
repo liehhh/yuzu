@@ -153,6 +153,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # CORS_ALLOWED_ORIGINS = ["https://liehhh.pythonanywhere.com"]
 # CSRF_TRUSTED_ORIGINS = ["https://liehhh.pythonanywhere.com"]
 
+AUTH_USER_MODEL = "users.UserProfile"
+
 load_dotenv(BASE_DIR / ".env")
 
 SPOTIFY_CLIENT_ID = os.getenv("SPOTIFY_CLIENT_ID")
