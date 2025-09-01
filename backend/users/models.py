@@ -1,17 +1,29 @@
 from django.db import models; import secrets
 from django.conf import settings
 from .utils import get_week_start
+from django.contrib.auth.models import AbstractUser
 
 
-class UserProfile(models.Model):
+class UserProfile(AbstractUser):
+    username = None
     lastfm_username = models.CharField(max_length=64, unique=True)
+
     display_name = models.CharField(max_length=255, blank=True, default="")
     avatar_url = models.URLField(blank=True, null=True)
     auth_token = models.CharField(max_length=128, unique=True, default="", editable=False)
 
-    def save(self,*a,**k):
-        if not self.auth_token: self.auth_token = secrets.token_urlsafe(48)
-        return super().save(*a,**k)
+    USERNAME_FIELD = "lastfm_username"
+    REQUIRED_FIELDS: list[str] = []
+
+    def save(self,*args,**kwargs):
+        if not self.auth_token:
+            self.auth_token = secrets.token_urlsafe
+        if self.lastfm_username:
+            self.lastfm_username = self.lastfm_username.strip().lower()
+        return super().save(*args, **kwargs)
+    
+    def __str__(self):
+        return self.lastfm_username
 
 
 class WeeklyPick(models.Model):
