@@ -8,7 +8,7 @@ from django.utils import timezone
 class UserProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserProfile
-        fields = ["id","lastfm_username","display_name","avatar_url","auth_token"]
+        fields = ["id","lastfm_username","display_name","avatar_url","app_token"]
         read_only_fields = ["id","auth_token"]
 
 
