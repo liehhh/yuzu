@@ -35,7 +35,7 @@ def lastfm_connect(request):
     if created or not user.has_usable_password():
         user.set_unusable_password()
 
-    # Persist avatar if provided
+    # Persist avatar if providedd
     if avatar_url and user.avatar_url != avatar_url:
         user.avatar_url = avatar_url
 
