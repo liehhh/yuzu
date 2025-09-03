@@ -20,37 +20,40 @@ def ping(request):
 @api_view(["POST"])
 @permission_classes([AllowAny])
 def lastfm_connect(request):
-    """
-    Body expected from your app after Last.fm OAuth:
-      {
-        "lastfm_username": "...",
-        "display_name": "...",
-        "avatar_url": "..."
-      }
-    """
     data = request.data or {}
-    username = data.get("lastfm_username")
-    display_name = data.get("display_name") or username
+    raw = (data.get("lastfm_username") or "").strip()
+    if not raw:
+        return Response({"detail": "lastfm_username required"}, status=400)
+
+    lfm = raw.lower()
     avatar_url = data.get("avatar_url")
 
-    if not username:
-        return Response({"detail": "lastfm_username required"}, status=400)
     User = get_user_model()
-    # Create or get a user record for this Last.fm user
-    # (use your existing user model/fields; this is a minimal example)
-    user, _created = User.objects.get_or_create(username=f"lfm_{username}")
+    user, created = User.objects.get_or_create(username=lfm)
 
-    # Issue or fetch DRF token
+    # App users don't use a local password
+    if created or not user.has_usable_password():
+        user.set_unusable_password()
+
+    # Persist avatar if provided
+    if avatar_url and user.avatar_url != avatar_url:
+        user.avatar_url = avatar_url
+
+    if created or avatar_url:
+        user.save()
+
+    # DRF token auth
     token, _ = Token.objects.get_or_create(user=user)
 
-    # Return what your app needs to save the session
-    return Response({
-        "id": user.id,
-        "auth_token": token.key,
-        "display_name": display_name,
-        "avatar_url": avatar_url,
-        "lastfm_username": username,
-    }, status=200)
+    return Response(
+        {
+            "id": user.id,
+            "auth_token": token.key,
+            "username": user.username,     # this IS the Last.fm username
+            "avatar_url": user.avatar_url,
+        },
+        status=200,
+    )
 
 
 @api_view(["GET"])
